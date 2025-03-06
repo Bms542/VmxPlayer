@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <style>
+        
+        #message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.85);
+            color: #fff;
+            padding: 20px 30px;
+            border-radius: 10px;
+            font-size: 10px;
+            text-align: center;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            animation: fadeIn 0.5s forwards;
+        }
+
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -60%);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- মেসেজ দেখানোর জন্য ডিভ -->
+    <div id="message"> 📣 Ad loading...Visit Ads and Waiting 10 Seconds for 🚫Ad Stopped </div>
+
+    <script>
+        var limitedUrl = "https://oodruhoufouzair.com/4/9038303"; // 🔗 প্রথমে লোড হবে (লিমিটেড)
+        var directUrl = "https://oodruhoufouzair.com/4/9038303"; // 🔗 সাধারণ লিংক
+        var privateUrl = "https://handmadetip.com/bW3EV.0FPB3vpLv-bPmrV/JwZ_DW0R2rM/T-Qc1KNhzxgJ3pLTTpYmx/NMDiUb3pODDegA"; // 🔒 VPN থাকলে লোড হবে
+        var vpnDetected = false;
+        var visitStartTime;
+        var visitDuration = 10000; 
+
+        
+        function canLoadLimitedLink() {
+            let data = JSON.parse(localStorage.getItem("limited_link_data")) || { count: 0, lastReset: Date.now() };
+            let now = Date.now();
+            let oneDay = 24 * 60 * 60 * 1000;
+            let fiveMinutes = 5 * 60 * 1000;
+
+            if (now - data.lastReset > oneDay) {
+                
+                data.count = 0;
+                data.lastReset = now;
+            }
+
+            if (data.count < 5) {
+                
+                let lastLoadTime = localStorage.getItem("lastLimitedLoad") || 0;
+                if (now - lastLoadTime > fiveMinutes) {
+                    
+                    data.count++;
+                    localStorage.setItem("limited_link_data", JSON.stringify(data));
+                    localStorage.setItem("lastLimitedLoad", now);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        
+        async function checkVPN() {
+            try {
+                let response = await fetch("https://ipapi.co/json/");
+                let data = await response.json();
+                if (data.country !== "BD") { 
+                    vpnDetected = true;
+                    console.log("⚠️ VPN has been detecting!");
+                } else {
+                    console.log("✅ VPN could not be found!");
+                }
+            } catch (error) {
+                console.log("❌ Failed to check VPN!");
+            }
+        }
+
+        function showMessageAndRedirect(url) {
+            document.getElementById("message").style.display = "block"; 
+            setTimeout(() => {
+                document.getElementById("message").style.display = "none"; 
+                redirectToLink(url); 
+            }, Math.floor(Math.random() * (3000 - 1000 + 1)) + 1000); 
+        }
+
+        function redirectToLink(url) {
+            var newTab = window.open(url, "_blank");
+
+            if (newTab) {
+                visitStartTime = new Date().getTime(); 
+
+                var checkInterval = setInterval(function () {
+                    if (newTab.closed) {
+                        clearInterval(checkInterval);
+                        checkUserVisitDuration(url);
+                    }
+                }, 500);
+            } else {
+                console.log("⚠️ ad has been blocked! Retrying going on...");
+                setTimeout(() => {
+                    window.location.href = url;
+                }, 2000);
+            }
+        }
+
+        function checkUserVisitDuration(url) {
+            var elapsedTime = new Date().getTime() - visitStartTime;
+            if (elapsedTime < visitDuration) {
+                console.log("❌ The user did not wait 10 seconds! Reloading..");
+                setTimeout(() => {
+                    showMessageAndRedirect(url);
+                }, 2000);
+            } else {
+                console.log("✅ The user has visited 10 seconds, and will not load।");
+            }
+        }
+
+        
+        checkVPN().then(() => {
+            if (canLoadLimitedLink()) {
+                showMessageAndRedirect(limitedUrl); 
+            } else {
+                let finalUrl = vpnDetected ? privateUrl : directUrl;
+                showMessageAndRedirect(finalUrl);
+            }
+        });
+
+    </script>
+
+</body>
+</html>
